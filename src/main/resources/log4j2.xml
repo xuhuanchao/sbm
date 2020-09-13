@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- monitorInterval：每个N 秒检查配置文件是否有变化，会重新配置日志 -->
+<configuration monitorInterval="600">
+
+    <properties>
+        <property name="logPath">logs</property>
+        <property name="fileName">sbm.log</property>
+    </properties>
+
+
+    <appenders>
+        <console name="console" target="SYSTEM_OUT">
+            <PatternLayout pattern="%d{YYYY-MM-dd HH:mm:ss} [%t] %-5p %logger:%L - %msg%n"/>
+        </console>
+
+        <rollingFile name="rollingFile" filename="${logPath}/${fileName}"
+                     filepattern="${logPath}/%d{YYYY-MM-dd HHmmss}-${fileName}">
+            <patternLayout pattern="%d{YYYY-MM-dd HH:mm:ss} [%t] %-5p %c{1}:%L - %msg%n" />
+            <policies>
+                <SizeBasedTriggeringPolicy size="10 MB" />
+            </policies>
+            <!-- 日志个数 -->
+            <defaultRolloverStrategy max="20" />
+        </rollingFile>
+
+
+    </appenders>
+    <loggers>
+        <root level="INFO">
+            <appenderRef ref="console"/>
+            <appenderRef ref="rollingFile" />
+        </root>
+
+        <!--        <logger name="org.springframework" level="info"/>-->
+        <!--        <logger name="org.eclipse.jetty" level="info"/>-->
+        <!--        <logger name="org.mybatis" level="info"/>-->
+        <!-- additivity 是否同时输出log到父类的appender -->
+        <logger name="com.xhc.sbm.dao" level="debug" additivity="false">
+            <appenderRef ref="console" />
+            <appenderRef ref="rollingFile" />
+        </logger>
+
+        <logger name="com.xhc.sbm.dao.jpa" level="debug" additivity="false">
+            <appenderRef ref="console" />
+            <appenderRef ref="rollingFile" />
+        </logger>
+
+
+        <logger name="org.hibernate.SQL" level="debug" additivity="false">
+            <appenderRef ref="console" />
+            <appenderRef ref="rollingFile" />
+        </logger>
+        <logger name="org.hibernate.engine.QueryParameters" level="debug" additivity="false">
+            <appenderRef ref="console" />
+            <appenderRef ref="rollingFile" />
+        </logger>
+        <logger name="org.hibernate.engine.query.HQLQueryPlan" level="debug" additivity="false">
+            <appenderRef ref="console" />
+            <appenderRef ref="rollingFile" />
+        </logger>
+        <logger name="org.hibernate.type.descriptor.sql.BasicBinder" level="trace" additivity="false">
+            <appenderRef ref="console" />
+            <appenderRef ref="rollingFile" />
+        </logger>
+
+
+
+    </loggers>
+</configuration>

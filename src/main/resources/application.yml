@@ -1,0 +1,217 @@
+
+server:
+  port: 8081
+  servlet:
+    context-path: /api
+
+
+spring:
+  application:
+    name: sbm
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/test_sbm?useUnicode=true&characterEncoding=utf8&useAffectedRows=true&zeroDateTimeBehavior=CONVERT_TO_NULL&useSSL=true&serverTimezone=Asia/Shanghai
+    username: root
+    password: root
+    type: com.zaxxer.hikari.HikariDataSource
+  hikari:
+    minimum-idle: 5   # 最小连接数
+    maximum-pool-size: 50   #最大连接数
+    idle-timeout: 600000  # idle状态的最大时长（毫秒），超时则释放，默认 10 分钟
+    connection-timeout: 30000  # 等待连接池分配连接的最大市场，默认 30s
+    auto-commit: true   # 自动提交
+#  jpa:
+#    database: mysql
+#    show-sql: true  #在log4j2配置中对org.hibernate进行配置来输出日志
+  cache:
+    type: redis
+  redis:
+    database: 0       #数据库索引默认0
+    host: localhost
+    port: 6379
+    password:
+    timeout: 1ms      #连接超时时间
+    jedis:
+      pool:
+        max-active: 8 #最大连接
+        max-idle: 8   #最大空闲
+        max-wait: 1ms #最大阻塞时间
+  servlet:
+    multipart:
+#      单个文件最大
+      max-file-size: 1MB
+#      请求总共最大
+      max-request-size: 10MB
+  devtools:
+    restart:
+      enabled: true
+      trigger-file: devtoolsTrigger.txt
+#      additional-paths: src/main/java
+      exclude: static/**
+
+
+## -------- 页面模板
+  mvc:
+    static-path-pattern: /**
+  resources:
+    static-locations: classpath:/static/
+  thymeleaf:
+    prefix: classpath:/templates/
+    suffix: .html
+    check-template-location: true #是否检查模板位置是否存在
+    mode: HTML
+    encoding: UTF-8
+    servlet:
+      content-type: text/html; charset=utf-8
+    #开发时关闭缓存,不然没法看到实时页面
+    cache: false
+
+#  freemarker:
+#    cache: false
+#    check-template-location: true
+#    content-type: text/html
+#    enabled: true
+#    suffix: .ftl
+#    template-loader-path: classpath:/static/views/
+#    settings:
+#      template_update_delay: 0
+#      default_encoding: UTF-8
+#      classic_compatible: true
+
+## ----- active mq
+## 控制台端口8161，登录用户名密码admin/admin
+  activemq:
+    broker-url: tcp://127.0.0.1:61616  # active mq 服务地址。 failover:(tcp://172.18.1.188:61616,tcp://172.18.1.18:61616) 集群配置
+    user: admin
+    password: admin
+    close-timeout: 15s   # 在考虑结束之前等待的时间
+    in-memory: false      # 启动一个内存active mq实例
+    non-blocking-redelivery: false  # 是否在回滚回滚消息之前停止消息传递。这意味着当启用此命令时，消息顺序不会被保留。
+    send-timeout: 0     # 等待消息发送响应的时间。设置为0等待永远。
+    queue-name: queueName   # 自定义队列名称
+    queue-name2: queue2
+    topic-name: topicName   # 自定义主题名称
+    pool:
+      enabled: false
+      block-if-full: true  #当连接请求和池满时是否阻塞。设置false会抛“JMSException异常”。
+      block-if-full-timeout: -1ms  #连接池满时，等待时间超过设定的值会抛出异常 默认-1ms不等待
+      max-connections: 3 # 连接池最大连接数 默认1
+      max-sessions-per-connection: 50  #每个连接最大会话数
+      idle-timeout: 30000 # 连接空闲时间默认30秒
+
+
+
+
+# ------- security 安全
+  security:
+    user:
+      name: admin
+      password: 123456
+      roles:
+        - user
+        -
+    basic:
+      enabled: false
+
+
+#  --------  elasticsearch
+#  访问默认端口9200/
+#  data:
+#    elasticsearch:
+#      cluster-nodes: 127.0.0.1:9300
+#      repositories:
+#        enabled: true
+
+#  -------- batch
+  batch:
+    job:
+      enabled: false  #是否自动运行
+    initialize-schema: ALWAYS
+#    table-prefix: csv-batch   batch表前缀
+
+
+# ---------  spring boot admin
+# 为了 admin server 可以访问当actuator的端点，需要放开security权限控制
+  boot:
+    admin:
+      client:
+        enabled: true
+        url: http://localhost:8070  # 逗号间隔多个server地址
+        username: admin            # 服务端认证的用户名
+        password: admin
+        period: 10000              # 心跳时间  ms
+        connect-timeout: 5000     # 连接server超时时间
+        read-timeout: 5000        # 注册读取超时
+        auto-registration: true  # 自动注册
+        auto-deregistration: true # 自动注销
+        register-once: true      # 只在一个server注册
+        instance:
+          name: ${spring.application.name}   # 注册的服务名称 默认spring.application.name
+          prefer-ip: true         # 使用ip 作为地址
+          service-url: http://localhost:8081     # 注册测服务地址
+
+
+# ------ actuator 监控
+management:
+  endpoint:
+    shutdown:
+      enabled: true
+    health:
+      show-details: always  #展示详细信息
+  endpoints:
+    jmx:
+      exposure:
+        include: "*"
+    web:
+      exposure:
+        include: "*"  # 暴露全部接口  通过web只能暴露health,info，其他项通过jmx
+#        exclude:
+#          - shutdown
+
+# 通过http://ip:port/actuator/xxx 访问监控信息
+#auditevents	显示应用暴露的审计事件 (比如认证进入、订单失败)
+#info	显示应用的基本信息
+#health	显示应用的健康状态
+#metrics	显示应用多样的度量信息
+#loggers	显示和修改配置的loggers
+#logfile	返回log file中的内容(如果logging.file或者logging.path被设置)
+#httptrace	显示HTTP足迹，最近100个HTTP request/repsponse
+#env	显示当前的环境特性
+#flyway	显示数据库迁移路径的详细信息
+#liquidbase	显示Liquibase 数据库迁移的纤细信息
+#shutdown	让你逐步关闭应用
+#mappings	显示所有的@RequestMapping路径
+#scheduledtasks	显示应用中的调度任务
+#threaddump	执行一个线程dump
+#heapdump	返回一个GZip压缩的JVM堆dump
+
+
+
+
+
+# ----- mybatis
+mybatis:
+  type-aliases-package: com.xhc.sbm.entity
+  mapper-locations: classpath:mybatis/*.xml
+  configuration:
+    jdbc-type-for-null: null
+
+pagehelper:
+  helper-dialect: mysql
+#  配置分页参数合理化功能，默认是false。 #启用合理化时，如果pageNum<1会查询第一页，如果pageNum>总页数会查询最后一页； #禁用合理化时，如果pageNum<1或pageNum>总页数会返回空数据
+  reasonable: true
+  support-methods-arguments: true
+
+# ----- log
+logging:
+  config: classpath:log4j2.xml
+
+
+
+app:
+  fileUpload:
+    filePath: j:\temp
+  security:
+    enabled: false
+  activeMq:
+    enabled: false

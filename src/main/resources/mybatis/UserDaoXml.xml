@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.xhc.sbm.dao.UserXmlDao" >
+
+    <resultMap id="BaseResultMap" type="com.xhc.sbm.entity.User" >
+        <id column="id" property="id" jdbcType="BIGINT" />
+        <result column="account_name" property="accountName" jdbcType="VARCHAR" />
+        <result column="password" property="password" jdbcType="VARCHAR"/>
+        <result column="user_name" property="userName" jdbcType="VARCHAR"/>
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
+        <result column="deleted" property="deleted" jdbcType="TINYINT"/>
+    </resultMap>
+
+    <sql id="Base_Column_List" >id, account_name, password, user_name, create_time, deleted</sql>
+
+    <sql id="whereSql">
+        <if test="accountName != null">
+            accountName = #{accountName, jdbcType=VARCHAR}
+        </if>
+        <if test="password != null">
+            and password = #{password, jdbcType=VARCHAR}
+        </if>
+        <if test="userName != null">
+            and user_name like concat('%',#{accountName, jdbcType=VARCHAR},'%')
+        </if>
+        <if test="deleted != null">
+            and deleted = #{deleted, jdbcType="TINYINT"}
+        </if>
+    </sql>
+
+    <select id="queryAll" resultMap="BaseResultMap" >
+        select
+        <include refid="Base_Column_List" />
+        from user
+        <where>
+            <include refid="whereSql"></include>
+        </where>
+    </select>
+
+    <select id="queryOne" resultMap="BaseResultMap">
+        select
+            <include refid="Base_Column_List" />
+        from user
+        <where>
+            id=#{id}
+        </where>
+    </select>
+
+    <insert id="addOne" parameterType="com.xhc.sbm.entity.User" keyColumn="id" keyProperty="id" useGeneratedKeys="true">
+        insert into user
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="accountName != null">
+                account_name,
+            </if>
+            <if test="password != null">
+                password,
+            </if>
+            <if test="userName != null">
+                user_name,
+            </if>
+            <if test="createTime != null">
+                create_time,
+            </if>
+            <if test="deleted != null">
+                deleted,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="accountName != null">
+                #{accountName},
+            </if>
+            <if test="password != null">
+                #{password},
+            </if>
+            <if test="userName != null">
+                #{userName},
+            </if>
+            <if test="createTime != null">
+                #{createTime},
+            </if>
+            <if test="deleted != null">
+                #{deleted},
+            </if>
+        </trim>
+
+    </insert>
+
+    <update id="updateOne" parameterType="com.xhc.sbm.entity.User">
+        update user
+            <set>
+                <if test="password != null">
+                    password=#{password},
+                </if>
+                <if test="userName != null">
+                    user_name=#{userName},
+                </if>
+            </set>
+
+        where id=#{id}
+    </update>
+
+    <update id="delOne" parameterType="java.lang.Long">
+        update user set deleted = 1 where id=#{id}
+    </update>
+
+    <select id="queryOneByAccountName" parameterType="String" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from user
+        <where>
+            account_name=#{accountName}
+        </where>
+    </select>
+
+
+    <insert id="addBatch" parameterType="java.util.List">
+        insert into user
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            id, account_name, password, user_name, create_time, deleted
+        </trim>
+
+        <foreach collection="list" item="item" separator=",">
+            <trim prefix=" values (" suffix=")">
+                #{item.id},#{item.accountName},#{item.password},#{item.userName},#{item.createTime},#{item.deleted}
+            </trim>
+        </foreach>
+    </insert>
+
+
+</mapper>

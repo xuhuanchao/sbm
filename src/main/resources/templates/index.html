@@ -1,0 +1,25 @@
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <title>index</title>
+    </head>
+    <h1>Hello World</h1>
+    <p>
+        首页
+    </p>
+    <span>今天：<span th:text="${today}"></span></span>
+    <p>
+        csrf=<span th:text="${_csrf?.parameterName}"></span></br>
+        token=<span th:text="${_csrf?.token}"></span></br>
+        test=<span th:text="${test1}?*{token}:'test'"></span>
+    </p>
+
+    <p>
+        <a href="/swagger-ui.html">swagger api</a>
+    </p>
+
+    <form action="/user/logout" method="post">
+        <input type="hidden" th:name="${_csrf?.parameterName}" th:value="${_csrf?.token}"/>
+        <button type="submit">退出</button>
+    </form>
+</html>

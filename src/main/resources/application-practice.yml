@@ -1,0 +1,9 @@
+#-Dspring.profiles.active=test
+# 使用active 配置文件方法：
+# 1.application.yml中设置： spring: profiles: active: dev
+# 2.idea中设置VM参数，-Dspring.profiles.active
+# 3.运行jar时：java -jar  xxx.jar  --spring.profiles.active=xxx
+
+
+server:
+  port: 8082

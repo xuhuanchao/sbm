@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.xhc.sbm.dao.StudentDaoXml" >
+
+    <resultMap id="BaseResultMap" type="com.xhc.sbm.entity.Student" >
+        <id column="id" property="id" jdbcType="BIGINT" />
+        <result column="name" property="name" jdbcType="VARCHAR" />
+        <result column="age" property="age" jdbcType="INTEGER"/>
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
+        <result column="nameAndAge" property="nameAndAge" jdbcType="VARCHAR" />
+    </resultMap>
+
+    <sql id="Base_Column_List" >id, name, age, CONCAT_WS('#', name, age) nameAndAge</sql>
+
+    <sql id="whereSql">
+        <if test="name != null">
+            name like concat('%',#{name, jdbcType=VARCHAR},'%')
+        </if>
+        <if test="age != null">
+            and age = #{age, jdbcType=INTEGER}
+        </if>
+    </sql>
+
+    <select id="queryAll" resultMap="BaseResultMap"  >
+        select
+        <include refid="Base_Column_List" />
+        from student
+        <where>
+            <include refid="whereSql"></include>
+        </where>
+    </select>
+
+    <select id="queryOne" resultMap="BaseResultMap">
+        select
+            <include refid="Base_Column_List" />
+        from student
+        <where>
+            id=#{id}
+        </where>
+    </select>
+
+    <insert id="addOne" parameterType="com.xhc.sbm.entity.Student" keyColumn="id" keyProperty="id" useGeneratedKeys="true">
+        insert into student
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="name != null">
+                name,
+            </if>
+            <if test="age != null">
+                age,
+            </if>
+            <if test="createTime != null">
+                create_time,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="name != null">
+                #{name},
+            </if>
+            <if test="age != null">
+                #{age},
+            </if>
+            <if test="createTime != null">
+                #{createTime},
+            </if>
+        </trim>
+
+    </insert>
+
+    <update id="updateOne" parameterType="com.xhc.sbm.entity.Student">
+        update student
+            <set>
+                <if test="name != null">
+                    name=#{name},
+                </if>
+                <if test="age != null">
+                    age=#{age},
+                </if>
+            </set>
+
+        where id=#{id}
+    </update>
+
+    <delete id="delOne" parameterType="java.lang.Long">
+        delete from student where id=#{id}
+    </delete>
+
+
+    <insert id="addBatch" parameterType="java.util.List" keyColumn="id" keyProperty="id" useGeneratedKeys="true">
+        insert into student
+            (name, age, create_time)
+        values
+        <foreach collection="list" item="item" separator=",">
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+                #{item.name}, #{item.age}, current_timestamp()
+            </trim>
+        </foreach>
+    </insert>
+
+    <update id="updateBatch" parameterType="java.util.List">
+        update student s join
+        (
+            <foreach collection="list" item="item" separator="union">
+                select #{item.id} as id, #{item.name} as name , #{item.age} as age
+            </foreach>
+        ) tmp using(id)
+        set
+            s.name = tmp.name, s.age=tmp.age
+    </update>
+
+</mapper>
