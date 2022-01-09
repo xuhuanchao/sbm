@@ -12,7 +12,8 @@ import org.springframework.data.elasticsearch.annotations.FieldType;
  * @Description:
  */
 @Data
-@Document(indexName = "item",type = "docs", shards = 1, replicas = 0)
+//@Document(indexName = "item", type = "docs", shards = 1, replicas = 0)
+@Document(indexName = "item")
 public class Item {
 
     @Id

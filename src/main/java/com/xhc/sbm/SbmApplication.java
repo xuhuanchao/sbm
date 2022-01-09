@@ -18,7 +18,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 public class SbmApplication {
 
 	public static void main(String[] args) {
-		System.setProperty("es.set.netty.runtime.available.processors","false");   //处理elasticSearch和redis使用netty时的冲突
+//		System.setProperty("es.set.netty.runtime.available.processors","false");   //处理elasticSearch和redis使用netty时的冲突
 		SpringApplication.run(SbmApplication.class, args);
 	}
 
